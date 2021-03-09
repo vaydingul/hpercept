@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+data/data
+data/data_
+data/data1
+data/data2
+data/data3
+data/data4
+data/database_corrected.hdf5
+data/database_original.hdf5
+data/phac_train_test_pos_neg_90_10_1_20.h5
