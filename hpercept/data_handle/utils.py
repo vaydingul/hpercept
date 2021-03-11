@@ -28,7 +28,7 @@ def fetch_instances(fn, adj_set):
 
         counter += 1
 
-    return dir_set
+    return np.array(dir_set)
 
 
 def open_instance(instance, fn):
