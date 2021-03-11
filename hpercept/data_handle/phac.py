@@ -8,7 +8,7 @@ class PHAC2:
                  accelerometer=None,
                  electrode_0=None,
                  pac_0=None,
-                 dc_0=None,
+                 pdc_0=None,
                  tac_0=None,
                  tdc_0=None,
                  electrode_1=None,
@@ -23,7 +23,7 @@ class PHAC2:
         self.accelerometer = accelerometer
         self.electrode_0 = electrode_0
         self.pac_0 = pac_0
-        self.dc_0 = dc_0
+        self.pdc_0 = pdc_0
         self.tac_0 = tac_0
         self.tdc_0 = tdc_0
         self.electrode_1 = electrode_1
