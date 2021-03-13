@@ -1,5 +1,6 @@
 
 from torch.utils import data
+
 import torch.nn as nn
 import torch
 import sys
@@ -21,10 +22,6 @@ phac2 = data.DataLoader(phac2_dataset, batch_size=10, num_workers=4)
 
 model = cnnau.ConvAutoencoder()
 print(model)
-
-x = torch.randn(1,1,64,160)
-print(model(x).shape)
-
 
 device = utils.get_device()
 model.to(device)
@@ -56,3 +53,6 @@ for epoch in range(1, n_epochs+1):
 
     train_loss = train_loss/len(phac2)
     print('Epoch: {} \tTraining Loss: {:.6f}'.format(epoch, train_loss))
+
+
+torch.save(model, "cnnau_model.pth")
