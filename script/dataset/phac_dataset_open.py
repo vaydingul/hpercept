@@ -15,6 +15,6 @@ phac2_dataset = h5.PHAC2Dataset(
 phac2 = data.DataLoader(phac2_dataset, batch_size=4, num_workers= 4, collate_fn=h5.phac2_collate_fn)
 
 
-for (ix, (X, y)) in enumerate(phac2):
+for (ix, X) in enumerate(phac2):
 	pass
 	# do smt!		
