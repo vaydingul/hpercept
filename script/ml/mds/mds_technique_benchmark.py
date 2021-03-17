@@ -54,7 +54,10 @@ if __name__ == "__main__":
 
     models = benchmark()
     results = []
-    for model in models:
+    
+    
+    for (ix, model) in enumerate(models):
 
         results.append(model(imgs))
-        print(model.model.stress_)
+        model.visualize("./entity/mds_images/normal/{0}.png".format(ix), mean = False)
+        model.visualize("./entity/mds_images/clustered/{0}.png".format(ix), mean = True)

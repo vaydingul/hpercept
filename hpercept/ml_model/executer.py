@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.manifold import MDS, TSNE
 
 
 class ModelExecutor:
@@ -35,24 +36,63 @@ class ModelExecutor:
 
         return self.result
 
-    def visualize(self, fn, dim, grouped=True, group_count=10, normalize=True, mean=False):
+    def visualize(self, fn, group_count=10, normalize=True, mean=False):
+
+        dim = self.model_args["n_components"]
 
         if normalize:
 
             self.result = (self.result - np.min(self.result, axis=0)) / \
                 (np.max(self.result, axis=0) - np.min(self.result, axis=0))
 
-        if (grouped == False) and (mean == True):
+        if mean:
 
-            partial = np.empty((self.result.shape[0]/group_count, ))
+            data = np.empty(
+                (int(self.result.shape[0]/group_count), self.result.shape[1]))
 
             for (ix, k) in enumerate(range(0, self.result.shape[0], group_count)):
 
-                partial[ix] = np.mean(
+                data[ix] = np.mean(
                     self.result[k:(k+group_count), :], axis=0)
 
-        elif (grouped == True) and (mean == False):
+            group_count = 1
 
-            partial = self.result
+        else:
 
-			
+            data = self.result
+
+        if self.method == MDS:
+
+            eval_val = self.model.stress_
+
+        elif self.method == TSNE:
+
+            eval_val = self.model.kl_divergence_
+
+        fig = plt.figure()
+
+        if dim == 2:
+
+            for k in range(data.shape[0]):
+
+                plt.scatter(data[k:k+group_count, 0], data[k:k+group_count, 1])
+
+            plt.title("Evaluation Value = {0}\n{1}\n{2}".format(eval_val, "\n".join([str(k) + " = " + str(v) for (
+                k, v) in self.model_args.items()]), "\n".join([str(k) + " = " + str(v) for (k, v) in self.feature_extractor_args.items()])))
+            plt.tight_layout()
+            plt.savefig(fn)
+
+        if dim == 3:
+
+            ax = fig.add_subplot(111, projection='3d')
+            for k in range(data.shape[0]):
+
+                ax.scatter(data[k:k+group_count, 0], data[k:k +
+                                                          group_count, 1], data[k:k+group_count, 2])
+
+            plt.title("Evaluation Value = {0}\n{1}\n{2}".format(eval_val, "\n".join([str(k) + " = " + str(v) for (
+                k, v) in self.model_args.items()]), "\n".join([str(k) + " = " + str(v) for (k, v) in self.feature_extractor_args.items()])))
+            plt.tight_layout()
+            plt.savefig(fn)
+
+        plt.close("all")
