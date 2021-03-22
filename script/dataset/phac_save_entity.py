@@ -13,18 +13,17 @@ phac2_dataset = h5.PHAC2Dataset(
 	"adjectives",
 	fixed_length=160)
 
-phac2 = data.DataLoader(phac2_dataset, batch_size=1, num_workers= 4, collate_fn=h5.phac2_collate_fn)
+phac2 = data.DataLoader(phac2_dataset, batch_size = 1,  num_workers= 1, collate_fn=h5.phac2_collate_fn)
 
 imgs = np.empty((len(phac2_dataset), 64, 160))
 adjs = np.empty((len(phac2_dataset), ), dtype = np.ndarray)
-names = np.empty((len(phac2_dataset), ), dtype = object)
+names = np.empty((len(phac2_dataset), ), dtype = np.object)
 
 for (ix, X) in enumerate(tqdm(phac2)):
 
 	imgs[ix, :, :] = X[0].image
-	adjs[ix] = X[0].adjective
+	adjs[ix] = X[0].adjective.astype(np.str)
 	names[ix] = phac2_dataset.dir_set[ix].split("/")[2]
-
 np.savez("./entity/imgs_adjs_names.npz", imgs, adjs, names)
 
 

@@ -3,7 +3,7 @@ from sklearn.manifold import MDS
 from skimage.feature import hog
 import sys
 import numpy as np
-
+from tqdm import tqdm
 sys.path.insert(1, "./")
 sys.path.insert(2, "./../")
 from hpercept.ml_model import executer
@@ -15,7 +15,7 @@ pixels_per_cell_options = [(16, 16), (24, 24), (32, 32)]
 cells_per_block_options = [(1, 1), (2, 2)]
 
 
-def benchmark():
+def model_creator():
 
     models = []
 
@@ -52,11 +52,11 @@ if __name__ == "__main__":
     # Fetch names
     names = npz_loader["arr_2"]
 
-    models = benchmark()
+    models = model_creator()
     results = []
     
     
-    for (ix, model) in enumerate(models):
+    for (ix, model) in enumerate(tqdm(models)):
 
         results.append(model(imgs))
         model.visualize("./entity/mds_images/normal/{0}.png".format(ix), mean = False)

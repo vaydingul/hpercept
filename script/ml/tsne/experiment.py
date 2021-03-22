@@ -1,4 +1,3 @@
-from torch.utils import data
 from sklearn.manifold import TSNE
 from skimage.feature import hog
 import sys
@@ -9,16 +8,16 @@ sys.path.insert(2, "./../")
 from hpercept.ml_model import executer
 
 n_components_options = [3, 2]
-perplexity_options = [20.0, 30.0, 40.0]
-early_exaggration_options = [10.0 ,12.0, 14.0]
-learning_rate_options = [10.0 ,12.0, 14.0]
-early_exaggeration_options = [10.0 ,12.0, 14.0]
-orientations_options = [5, 6, 7, 8]
-pixels_per_cell_options = [(16, 16), (24, 24), (32, 32)]
+perplexity_options = [20.0, 30.0]
+early_exaggration_options = [12.0, 14.0]
+learning_rate_options = [10.0 ,12.0]
+early_exaggeration_options = [12.0, 14.0]
+orientations_options = [7, 8]
+pixels_per_cell_options = [(24, 24), (32, 32)]
 cells_per_block_options = [(1, 1), (2, 2)]
 
 
-def benchmark():
+def model_creator():
 
     models = []
 
@@ -59,7 +58,7 @@ if __name__ == "__main__":
     # Fetch names
     names = npz_loader["arr_2"]
 
-    models = benchmark()
+    models = model_creator()
     results = []
     
     
@@ -68,3 +67,4 @@ if __name__ == "__main__":
         results.append(model(imgs))
         model.visualize("./entity/tsne_images/normal/{0}.png".format(ix), mean = False)
         model.visualize("./entity/tsne_images/clustered/{0}.png".format(ix), mean = True)
+        print(ix)
