@@ -1,9 +1,9 @@
-from torch.utils import data
 from sklearn.manifold import MDS
 from skimage.feature import hog
 import sys
 import numpy as np
 from tqdm import tqdm
+
 sys.path.insert(1, "./")
 sys.path.insert(2, "./../")
 from hpercept.ml_model import executer
@@ -35,7 +35,7 @@ def model_creator():
                         
 
 
-                        models.append(executer.ModelExecutor(
+                        models.append(executer.ManifoldModelExecutor(
                             MDS, hog, cfg_model, cfg_feature_extractor))
 
     return models
@@ -61,3 +61,4 @@ if __name__ == "__main__":
         results.append(model(imgs))
         model.visualize("./entity/mds_images/normal/{0}.png".format(ix), mean = False)
         model.visualize("./entity/mds_images/clustered/{0}.png".format(ix), mean = True)
+

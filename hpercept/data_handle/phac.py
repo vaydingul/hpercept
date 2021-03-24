@@ -1,7 +1,22 @@
 class PHAC2:
     """
 
+    General PHAC-2 class to represent the different attibutes of the data
 
+    accelerometer: Accelerometer reading
+    electrode_0: Electrode readings in the BioTac finger 1
+    pac_0: Dynamic pressure reading in the BioTac finger 1
+    pdc_0: Static pressure reading in the BioTac finger 1
+    tac_0: Heat flux reading in the BioTac finger 1
+    tdc_0: Temperature reading in the BioTac finger 1
+    electrode_1: Electrode readings in the BioTac finger 2
+    pac_1: Dynamic pressure reading in the BioTac finger 2
+    pdc_1: Static pressure reading in the BioTac finger 2
+    tac_1: Heat flux reading in the BioTac finger 2
+    tdc_1: Temperature reading in the BioTac finger 2
+    controller_detail_state = The detailed state of the robotic controller
+    image: The image representation of the data consisting from the composition of all the signals
+    adjective: Adjectives defined by the human subjects
     """
 
     def __init__(self,
@@ -34,5 +49,3 @@ class PHAC2:
         self.controller_detail_state = controller_detail_state
         self.image = image
         self.adjective = adjective
-
-

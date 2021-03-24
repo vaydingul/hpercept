@@ -13,7 +13,7 @@ EP_DICT = {"hold": b'HOLD_FOR_10_SECONDS',
 
 def fetch_instances(file, adj_set):
 
-    
+    # Fetch all the datapoint names from the .hdf5 file
     adjectives = file[adj_set].keys()
     dir_set = []
     
@@ -30,7 +30,7 @@ def fetch_instances(file, adj_set):
 
 def open_instance(instance, file):
 
-    
+    # Open the specified datapoint and read the inherent data
 
     X = phac.PHAC2(
         np.array(file[instance]["accelerometer"]),
@@ -53,11 +53,13 @@ def open_instance(instance, file):
 
 
 def preprocess_instance(X, fixed_length=150):
+    """
 
-    X_out = []
+    Preprocess operations on the PHAC-2 Data
 
+    """
 
-
+    # Standardization of the whole data
     X.electrode_0 = (X.electrode_0 - np.mean(X.electrode_0, axis=0)) / \
         np.std(X.electrode_0, axis=0)
 
@@ -75,6 +77,7 @@ def preprocess_instance(X, fixed_length=150):
     X.tdc_0 = (X.tdc_0 - np.mean(X.tdc_0, axis=0)) / \
         np.std(X.tdc_0, axis=0)
 
+    # PCA on the electrodes
     pca = PCA(n_components=4)
     X.electrode_0 = pca.fit_transform(X.electrode_0)
 
@@ -98,11 +101,13 @@ def preprocess_instance(X, fixed_length=150):
     pca = PCA(n_components=4)
     X.electrode_1 = pca.fit_transform(X.electrode_1)
 
+    # Specific periods of the experiment
     hold_ixs = X.controller_detail_state == EP_DICT["hold"]
     squeeze_ixs = X.controller_detail_state == EP_DICT["squeeze"]
     slow_slide_ixs = X.controller_detail_state == EP_DICT["slow_slide"]
     fast_slide_ixs = X.controller_detail_state == EP_DICT["fast_slide"]
 
+    # Generation of one big image from the signals
     img = np.vstack(
         [
             resample(X.pac_0[hold_ixs], fixed_length),

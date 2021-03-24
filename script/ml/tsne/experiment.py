@@ -2,6 +2,7 @@ from sklearn.manifold import TSNE
 from skimage.feature import hog
 import sys
 import numpy as np
+from tqdm import tqdm
 
 sys.path.insert(1, "./")
 sys.path.insert(2, "./../")
@@ -41,7 +42,7 @@ def model_creator():
                                 
 
 
-                                models.append(executer.ModelExecutor(
+                                models.append(executer.ManifoldModelExecutor(
                                     TSNE, hog, cfg_model, cfg_feature_extractor))
 
     return models
@@ -62,9 +63,8 @@ if __name__ == "__main__":
     results = []
     
     
-    for (ix, model) in enumerate(models):
+    for (ix, model) in enumerate(tqdm(models)):
 
         results.append(model(imgs))
         model.visualize("./entity/tsne_images/normal/{0}.png".format(ix), mean = False)
         model.visualize("./entity/tsne_images/clustered/{0}.png".format(ix), mean = True)
-        print(ix)
