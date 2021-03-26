@@ -107,7 +107,7 @@ class ManifoldModelExecutor:
             group_count = 1
 
         # Get metric value based on the method
-        eval_val = self.model.__dict__[metric_dict[self.method]]
+        eval_val = self.get_evaluation()#self.model.__dict__[metric_dict[self.method]]
 
         # Initialize figure
         fig = plt.figure(figsize=(15.0, 15.0), dpi=200)
@@ -156,3 +156,13 @@ class ManifoldModelExecutor:
         plt.savefig(fn)
 
         plt.close("all")
+
+
+    def get_evaluation(self):
+        """
+
+        It returns the fitness score which is 
+        defined for the specified method/model.
+
+        """
+        return self.model.__dict__[metric_dict[self.method]]
