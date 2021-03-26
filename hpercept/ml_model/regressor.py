@@ -8,21 +8,21 @@ from matplotlib import rcParams
 metric_dict = {MDS: "stress_", TSNE: "kl_divergence_"}
 
 
-class ManifoldModelExecutor:
+class RegressionModelExecutor:
     """
 
-    ManifoldModelExecutor
+    RegressionModelExecutor
 
-    It is a general manifold learning execution class which is located on the top of the sklearn
+    It is a general regression analysis execution class which is located on the top of the sklearn
     """
 
-    def __init__(self, method, feature_extractor=None, method_args=None, feature_extractor_args=None):
+    def __init__(self, method, method_args=None, metrics=None):
         """
 
         Constructor:
 
         Input:
-            model = ML model 
+            method = Regression type/model 
             feature_extractor = Feature extractor function 
             method_args = ML model arguments
             feature_extractor_args = Feature extractor function arguments
@@ -31,43 +31,56 @@ class ManifoldModelExecutor:
         # Model and its constructor parameters
         self.method = method
         self.method_args = method_args
-        # Feature extractor function its arguments
-        self.feature_extractor_args = feature_extractor_args
-        self.feature_extractor = feature_extractor
+        self.metrics = metrics
         # Model initialization
         self.model = self.method(**self.method_args)
 
         # Some initilialization
-        self.data = None
-        self.data_extracted = None
-        self.result = None
+        self.X_train = None
+        self.y_train = None
+        self.X_test = None
+        self.y_test = None
 
-    def __call__(self, data):
+    def __call__(self, X_train, y_train, X_test, y_test):
         """
 
         Call method:
 
         Input:
-            data = The data to be processed by model and feature extractor
-
+            X_train = Train feature matrix
+            y_train = Train target vector
+                        X_test = Test feature matrix
+            y_test = Test target vector
         Output:
-            self.result = The processed data
 
         """
+        self.X_train = X_train
+        self.y_train = y_train
+        self.X_test = X_test
+        self.y_test = y_test
 
-        self.data_extracted = data
-        # Get number of samples
-        n = self.data_extracted.shape[0]
+        self.model.fit(self.X_train, self.y_train)
 
-        if self.feature_extractor is not None and self.feature_extractor_args is not None:
-            # Apply feature extractor to the each sample in the data
-            self.data_extracted = np.array([self.feature_extractor(
-                self.data_extracted[k], **self.feature_extractor_args) for k in range(n)])
+    def evaluate(self, desc_text=None, fn=None):
 
-        # Apply model to the extracted data
-        self.result = self.model.fit_transform(self.data_extracted)
-        # Return the result
-        return self.result
+        evaluation_results = np.array([metric(self.y_test, self.model.predict(
+            self.X_test)) for metric in self.metrics], dtype=np.ndarray)
+
+        if fn is not None:
+
+            with open("out.txt", "w") as f:
+
+                f.writelines("Description: {}\n".format(desc_text))
+                f.writelines("Coefficients: {}\n".format(
+                    str(self.model.coef_)))
+                f.writelines("Intercept: {}\n".format(
+                    str(self.model.intercept_)))
+
+                for (ix, metric) in enumerate(self.metrics):
+
+                    f.writelines("{}: {}\n".format(metric.__name__.replace("_", " ").title(),
+                                                   str(evaluation_results[ix])))
+                    f.writelines("\n\n")
 
     def visualize(self, fn, group_count=10, normalize=True, mean=False):
         """
@@ -116,14 +129,12 @@ class ManifoldModelExecutor:
         color_interval = np.linspace(
             0, 1, int(0.8 * data.shape[0]/group_count))
         colors = [cm.prism(x) for x in color_interval]
-        
+
         markers = ["o", "^", "s", "H", "X"]
 
         ss = [rcParams['lines.markersize']**3, 2 * rcParams['lines.markersize']
               ** 3, 0.5 * rcParams['lines.markersize']**3]
-        
-        
-        
+
         # Method is different for 2D and 3D
 
         if dim == 2:
@@ -152,7 +163,7 @@ class ManifoldModelExecutor:
             k, v) in self.method_args.items()]), " || ".join([str(k) + " = " + str(v) for (k, v) in self.feature_extractor_args.items()])))
 
         plt.tight_layout(pad=0.1, rect=[0, 0.03, 1, 0.90])
-        
+
         plt.savefig(fn)
 
         plt.close("all")
