@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 sys.path.insert(1, "./")
 sys.path.insert(2, "./../")
-from hpercept.ml_model import executer
+from hpercept.ml_model import manifold
 
 n_components_options = [3, 2]
 perplexity_options = [10, 15.0, 20.0, 25.0,  30.0]
@@ -38,7 +38,7 @@ def model_creator():
                             
 
 
-                            models.append(executer.ManifoldModelExecutor(
+                            models.append(manifold.ManifoldModelExecutor(
                                 TSNE, hog, cfg_model, cfg_feature_extractor))
 
     return models

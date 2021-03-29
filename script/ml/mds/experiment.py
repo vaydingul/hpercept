@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 sys.path.insert(1, "./")
 sys.path.insert(2, "./../")
-from hpercept.ml_model import executer
+from hpercept.ml_model import manifold
 
 n_components_options = [3, 2]
 metrics = [False, True]
@@ -35,7 +35,7 @@ def model_creator():
                         
 
 
-                        models.append(executer.ManifoldModelExecutor(
+                        models.append(manifold.ManifoldModelExecutor(
                             MDS, hog, cfg_model, cfg_feature_extractor))
 
     return models

@@ -41,7 +41,7 @@ class RegressionModelExecutor:
         self.X_test = None
         self.y_test = None
 
-    def __call__(self, X_train, y_train, X_test, y_test):
+    def __call__(self, X_train, y_train, X_test = None, y_test = None):
         """
 
         Call method:
@@ -68,7 +68,7 @@ class RegressionModelExecutor:
 
         if fn is not None:
 
-            with open("out.txt", "w") as f:
+            with open(fn, "w") as f:
 
                 f.writelines("Description: {}\n".format(desc_text))
                 f.writelines("Coefficients: {}\n".format(
@@ -81,6 +81,26 @@ class RegressionModelExecutor:
                     f.writelines("{}: {}\n".format(metric.__name__.replace("_", " ").title(),
                                                    str(evaluation_results[ix])))
                     f.writelines("\n\n")
+        
+        else:
+
+            print("Description: {}\n".format(desc_text))
+            print("Coefficients: {}\n".format(
+                str(self.model.coef_)))
+            print("Intercept: {}\n".format(
+                str(self.model.intercept_)))
+
+            for (ix, metric) in enumerate(self.metrics):
+
+                print("{}: {}\n".format(metric.__name__.replace("_", " ").title(),
+                                                str(evaluation_results[ix])))
+                print("\n\n")
+
+
+
+    def predict(self, sample):
+
+        return self.model.predict(sample)
 
     def visualize(self, fn, group_count=10, normalize=True, mean=False):
         """

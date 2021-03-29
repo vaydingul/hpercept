@@ -5,39 +5,25 @@ from numpy.lib.arraysetops import unique
 from sklearn.linear_model import LogisticRegression
 from sklearn.manifold import MDS
 from skimage.feature import hog
-from sklearn.metrics import r2_score, accuracy_score, confusion_matrix
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 from sklearn.preprocessing import StandardScaler
+
 sys.path.insert(1, "./")
 sys.path.insert(2, "./../")
 
-from hpercept.ml_model import executer
+from hpercept.ml_model import regressor, manifold
 from hpercept.ml_model import utils
 
-def logistic_regressor(embeddings, labels):
 
-    lr = LogisticRegression()
-
-    lr.fit(embeddings, labels)
-
-    return lr
 
 
 def get_embeddings(imgs, method, feature_extractor, model_args, feature_extractor_args):
 
-    me = executer.ModelExecutor(
+    mme = manifold.ManifoldModelExecutor(
         method, feature_extractor, model_args, feature_extractor_args)
 
-    return me(imgs)
-
-def evaluate(model, x_test, y_test, *methods):
-
-    evaluation_results = np.array([method(y_test, model.predict(x_test)) for method in methods], dtype = np.ndarray)
-
-    return evaluation_results
-
-
-
+    return mme(imgs)
 
 
 if __name__ == "__main__":
@@ -51,42 +37,48 @@ if __name__ == "__main__":
     # Fetch names
     names = npz_loader["arr_2"]
 
+    # Adjective encoding
     adjective_encoding, unique_adjective_list = utils.extract_adjective_encoding(
         adjs)
 
+    # Configuration for embedding algorithm
     method = MDS
     feature_extractor = hog
     model_args = {"n_components": 3, "metric": True, "n_jobs": 4}
-    feature_extractor_args = {"orientations":5, "pixels_per_cell": (32,32), "cells_per_block":(2,2)}
+    feature_extractor_args = {"orientations": 5, "pixels_per_cell": (
+        32, 32), "cells_per_block": (2, 2)}
 
-    embeddings = get_embeddings(imgs, method, feature_extractor, model_args, feature_extractor_args)
+    embeddings = get_embeddings(
+        imgs, method, feature_extractor, model_args, feature_extractor_args)
 
+    sss = StratifiedShuffleSplit(n_splits = 1, test_size = 0.1)
 
-    embeddings_train, embeddings_test, adjectives_train,adjectives_test = train_test_split(embeddings, adjective_encoding, test_size=0.4, shuffle=True)
+    train_index, test_index =  list(sss.split(embeddings, adjective_encoding))[0]
+    embeddings_train, embeddings_test = embeddings[train_index], embeddings[test_index]
+    adjectives_train, adjectives_test = adjective_encoding[train_index], adjective_encoding[test_index]
+
+    """
+    embeddings_train, embeddings_test, adjectives_train, adjectives_test = train_test_split(
+        embeddings, adjective_encoding, test_size=0.5, shuffle=True, stratify = True)
+    """
 
     scaler = StandardScaler()
     embeddings_train = scaler.fit_transform(embeddings_train)
     embeddings_test = scaler.transform(embeddings_test)
 
+    lr_models_per_adjective = [regressor.RegressionModelExecutor(method = LogisticRegression, 
+        method_args = {}, metrics = [accuracy_score, confusion_matrix, classification_report]) for _ in range(unique_adjective_list.shape[0])]
 
-    lr_models_per_adjective = [logistic_regressor(embeddings_train, adjectives_train[:, k]) for k in range(unique_adjective_list.shape[0])]
+    for (ix, lr_model) in enumerate(lr_models_per_adjective):
+        
+        lr_model(embeddings_train, adjectives_train[:, ix],embeddings_test, adjectives_test[:, ix])
 
-    evaluation_results = np.vstack([evaluate(lr_model, embeddings_test, adjectives_test[:, ix], confusion_matrix, accuracy_score) for (ix, lr_model) in enumerate(lr_models_per_adjective)])
-    
-
-    with open("out.txt", "w") as f:
-            
-        for (ix, model) in enumerate(lr_models_per_adjective):
-            
-            f.writelines("Adjective: {}\n".format(unique_adjective_list[ix]))
-            f.writelines("Coefficients: {}\n".format(str(model.coef_)))
-            f.writelines("Intercept: {}\n".format(str(model.intercept_)))
-            f.writelines("Confusion Matrix: {}\n".format(str(evaluation_results[ix][0])))
-            f.writelines("Accuracy: {}\n".format(str(evaluation_results[ix][1])))
-            f.writelines("\n\n")
+        lr_model.evaluate(unique_adjective_list[ix])
 
 
-    angles = np.empty((len(lr_models_per_adjective), len(lr_models_per_adjective)))
+    """
+    angles = np.empty((len(lr_models_per_adjective),
+                       len(lr_models_per_adjective)))
 
     for (ix1, m1) in enumerate(lr_models_per_adjective):
         for (ix2, m2) in enumerate(lr_models_per_adjective):
@@ -97,8 +89,5 @@ if __name__ == "__main__":
 
     df = pd.DataFrame(angles*180/np.pi)
     df.to_excel("angles.xlsx")
-
-
-            
-
+    """
     print("Done!")
