@@ -61,40 +61,37 @@ class RegressionModelExecutor:
 
         self.model.fit(self.X_train, self.y_train)
 
-    def evaluate(self, desc_text=None, fn=None):
+    def evaluate(self, desc_text=None, fn=None, noprint = True):
 
         evaluation_results = np.array([metric(self.y_test, self.model.predict(
             self.X_test)) for metric in self.metrics], dtype=np.ndarray)
 
-        if fn is not None:
+        msg = ""
 
-            with open(fn, "w") as f:
-
-                f.writelines("Description: {}\n".format(desc_text))
-                f.writelines("Coefficients: {}\n".format(
-                    str(self.model.coef_)))
-                f.writelines("Intercept: {}\n".format(
-                    str(self.model.intercept_)))
-
-                for (ix, metric) in enumerate(self.metrics):
-
-                    f.writelines("{}: {}\n".format(metric.__name__.replace("_", " ").title(),
-                                                   str(evaluation_results[ix])))
-                    f.writelines("\n\n")
+        msg += "Description: {}\n".format(desc_text)
+        msg += "Coefficients: {}\n".format(
+                    str(self.model.coef_))
         
-        else:
+        msg += "Intercept: {}\n".format(
+                    str(self.model.intercept_))
 
-            print("Description: {}\n".format(desc_text))
-            print("Coefficients: {}\n".format(
-                str(self.model.coef_)))
-            print("Intercept: {}\n".format(
-                str(self.model.intercept_)))
+        for (ix, metric) in enumerate(self.metrics):
 
-            for (ix, metric) in enumerate(self.metrics):
+            msg += "{}: {}\n".format(metric.__name__.replace("_", " ").title(),
+                                                   str(evaluation_results[ix]))
+        if not noprint:
 
-                print("{}: {}\n".format(metric.__name__.replace("_", " ").title(),
-                                                str(evaluation_results[ix])))
-                print("\n\n")
+            if fn is not None:
+
+                with open(fn, "w") as f:
+
+                    f.writelines(msg)
+            
+            else:
+
+                print(msg)
+        
+        return msg
 
 
 
@@ -102,88 +99,46 @@ class RegressionModelExecutor:
 
         return self.model.predict(sample)
 
-    def visualize(self, fn, group_count=10, normalize=True, mean=False):
+    def visualize(self, fn, desc=None):
         """
 
         visualize:
 
         Input:
             fn = Filename to save the figure
-            group_count = Each ´group_count´ element of the self.result will be grouped
-            normalize = If it is True, then, the all data will be normalized
-            mean = If it is True, then, the ach group will be replaced by its mean
-
+            desc = Descriptive text
 
         """
-        # Get the set dimension
-        dim = self.method_args["n_components"]
+       
+        for [X, y, name] in zip([self.X_train, self.X_test], [self.y_train, self.y_test], ["train", "test"]):
+            
+            # Initialize figure
+            fig = plt.figure(figsize=(15.0, 15.0), dpi=200)
 
-        if normalize:
-            # Apply naive normalization
-            self.result = (self.result - np.min(self.result, axis=0)) / \
-                (np.max(self.result, axis=0) - np.min(self.result, axis=0))
-
-        data = self.result
-
-        if mean:
-
-            # If mean is True, then cluster the data based on the group_count
-
-            data = np.empty(
-                (int(self.result.shape[0]/group_count), self.result.shape[1]))
-
-            for (ix, k) in enumerate(range(0, self.result.shape[0], group_count)):
-
-                data[ix] = np.mean(
-                    self.result[k:(k+group_count), :], axis=0)
-
-            group_count = 1
-
-        # Get metric value based on the method
-        eval_val = self.model.__dict__[metric_dict[self.method]]
-
-        # Initialize figure
-        fig = plt.figure(figsize=(15.0, 15.0), dpi=200)
-
-        # Create visually distinct color space for ease of visualization
-        color_interval = np.linspace(
-            0, 1, int(0.8 * data.shape[0]/group_count))
-        colors = [cm.prism(x) for x in color_interval]
-
-        markers = ["o", "^", "s", "H", "X"]
-
-        ss = [rcParams['lines.markersize']**3, 2 * rcParams['lines.markersize']
-              ** 3, 0.5 * rcParams['lines.markersize']**3]
-
-        # Method is different for 2D and 3D
-
-        if dim == 2:
-
-            for (ix, k) in enumerate(range(0, data.shape[0], group_count)):
-
-                plt.scatter(data[k:k+group_count, 0],
-                            data[k:k+group_count, 1],
-                            color=colors[np.random.choice(len(colors))],
-                            marker=str(np.random.choice(markers, 1)[0]),
-                            s=np.random.choice(ss, 1)[0])
-
-        if dim == 3:
+            # Method is different for 2D and 3D
+        
+            
 
             ax = fig.add_subplot(111, projection='3d')
 
-            for (ix, k) in enumerate(range(0, data.shape[0], group_count)):
+            for k in range(X.shape[0]):
 
-                ax.scatter(data[k:k+group_count, 0],
-                           data[k:k + group_count, 1], data[k:k+group_count, 2],
-                           color=colors[np.random.choice(len(colors))],
-                           marker=str(np.random.choice(markers, 1)[0]),
-                           s=np.random.choice(ss, 1)[0])
+                marker = "+" if y[k] == 1 else "$-$" 
+                color = "green" if self.predict([X[k]])[0] == y[k] else "red"
+                data = X[k]
 
-        plt.title("Evaluation Value = {0}\n{1}\n{2}".format(eval_val, " || ".join([str(k) + " = " + str(v) for (
-            k, v) in self.method_args.items()]), " || ".join([str(k) + " = " + str(v) for (k, v) in self.feature_extractor_args.items()])))
+                ax.scatter(data[0], data[1], data[2],
+                            color=color,
+                            marker=marker)
 
-        plt.tight_layout(pad=0.1, rect=[0, 0.03, 1, 0.90])
 
-        plt.savefig(fn)
 
-        plt.close("all")
+            plt.title(self.evaluate(desc))
+
+            plt.tight_layout(pad=0.1, rect=[0, 0.03, 1, 0.90])
+
+            plt.savefig(fn.replace(".png","_{}.png".format(name)))
+
+            plt.close("all")
+
+       

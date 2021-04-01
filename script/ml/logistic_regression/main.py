@@ -51,7 +51,7 @@ if __name__ == "__main__":
     embeddings = get_embeddings(
         imgs, method, feature_extractor, model_args, feature_extractor_args)
 
-    sss = StratifiedShuffleSplit(n_splits = 1, test_size = 0.1)
+    sss = StratifiedShuffleSplit(n_splits = 1, test_size = 0.5)
 
     train_index, test_index =  list(sss.split(embeddings, adjective_encoding))[0]
     embeddings_train, embeddings_test = embeddings[train_index], embeddings[test_index]
@@ -67,13 +67,15 @@ if __name__ == "__main__":
     embeddings_test = scaler.transform(embeddings_test)
 
     lr_models_per_adjective = [regressor.RegressionModelExecutor(method = LogisticRegression, 
-        method_args = {}, metrics = [accuracy_score, confusion_matrix, classification_report]) for _ in range(unique_adjective_list.shape[0])]
+        method_args = {}, metrics = [accuracy_score, confusion_matrix]) for _ in range(unique_adjective_list.shape[0])]
 
     for (ix, lr_model) in enumerate(lr_models_per_adjective):
         
         lr_model(embeddings_train, adjectives_train[:, ix],embeddings_test, adjectives_test[:, ix])
 
-        lr_model.evaluate(unique_adjective_list[ix])
+        #lr_model.evaluate(unique_adjective_list[ix])
+
+        lr_model.visualize("./entity/lr_images/{}.png".format(ix), unique_adjective_list[ix])
 
 
     """
