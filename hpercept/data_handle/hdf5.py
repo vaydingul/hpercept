@@ -41,7 +41,7 @@ class PHAC2Dataset(data.Dataset):
 
         # If unique is True, then it returns the unique data points
         if unique:
-            _, unique_ixs = np.unique([item.split("/")[2]
+            _, unique_ixs = np.unique(["_".join(item.split("/")[2].split("_")[:-2])
                                        for item in self.dir_set], return_index=True)
             self.dir_set = self.dir_set[unique_ixs]
 
