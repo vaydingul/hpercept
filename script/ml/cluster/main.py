@@ -17,12 +17,30 @@ pixels_per_cell_options = [(16, 16), (24, 24), (32, 32)]
 cells_per_block_options = [(1, 1), (2, 2)]
 
 
+
+
 def get_embeddings(imgs, method, feature_extractor, model_args, feature_extractor_args):
 
 	mme = manifold.ManifoldModelExecutor(
 		method, feature_extractor, model_args, feature_extractor_args)
 
 	return mme(imgs)
+
+def model_creator():
+
+	models = []
+	for k in range(1,25,3):
+	# Configuration for clustering algorithm
+		method = AgglomerativeClustering
+		feature_extractor = hog
+		model_args = {"n_clusters":k,"linkage":"ward"}
+		feature_extractor_args = {"orientations": 5, "pixels_per_cell": (
+			32, 32), "cells_per_block": (2, 2)}
+
+		models.append(cluster.ClusterExecutor(method, feature_extractor, model_args, feature_extractor_args))
+
+	return models
+
 
 
 if __name__ == "__main__":
@@ -46,14 +64,7 @@ if __name__ == "__main__":
 	embeddings = get_embeddings(
 		imgs, method, feature_extractor, model_args, feature_extractor_args)
 
-	# Configuration for clustering algorithm
-	method = AgglomerativeClustering
-	feature_extractor = hog
-	model_args = {"n_clusters":2,"linkage":"ward"}
-	feature_extractor_args = {"orientations": 5, "pixels_per_cell": (
-		32, 32), "cells_per_block": (2, 2)}
-
-	models = [cluster.ClusterExecutor(method, feature_extractor, model_args, feature_extractor_args)]
+	models = model_creator()
 
 	for (ix, model) in enumerate(tqdm(models)):
 

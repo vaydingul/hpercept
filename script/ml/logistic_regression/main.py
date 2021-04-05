@@ -56,7 +56,6 @@ if __name__ == "__main__":
     train_index, test_index =  list(sss.split(embeddings, adjective_encoding))[0]
     embeddings_train, embeddings_test = embeddings[train_index], embeddings[test_index]
     adjectives_train, adjectives_test = adjective_encoding[train_index], adjective_encoding[test_index]
-
     """
     embeddings_train, embeddings_test, adjectives_train, adjectives_test = train_test_split(
         embeddings, adjective_encoding, test_size=0.5, shuffle=True, stratify = True)

@@ -4,7 +4,7 @@ from matplotlib import cm
 from skimage import feature
 from sklearn.cluster import *
 from matplotlib import rcParams
-
+from distinctipy import distinctipy
 
 class ClusterExecutor:
     """
@@ -85,7 +85,9 @@ class ClusterExecutor:
         # Create visually distinct color space for ease of visualization
         color_interval = np.linspace(
             0, 1, int(self.model.n_clusters_))
-        colors = [cm.prism(x) for x in color_interval]
+        #colors = [cm.prism(x) for x in color_interval]
+        
+        colors = distinctipy.get_colors(self.model.n_clusters_)
 
         markers = ["o", "^", "s", "H", "X"]
 
@@ -101,7 +103,7 @@ class ClusterExecutor:
             ax.scatter(data_[:, 0],
                        data_[:, 1],
                        data_[:, 2],
-                       color=colors[np.random.choice(len(colors))],
+                       color=colors[k],
                        marker=str(np.random.choice(markers, 1)[0]),
                        s=np.random.choice(ss, 1)[0])
 

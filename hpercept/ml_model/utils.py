@@ -84,3 +84,15 @@ def get_colors(n):
     b = int(b) % 256
     ret.append((r/256, g/256, b/256, 1.0))
     return ret
+
+
+def mse(imageA, imageB):
+	# the 'Mean Squared Error' between the two images is the
+	# sum of the squared difference between the two images;
+	# NOTE: the two images must have the same dimension
+	err = np.sum((imageA.astype(np.float) - imageB.astype(np.float)) ** 2)
+	err /= float(imageA.shape[0] * imageA.shape[1])
+	
+	# return the MSE, the lower the error, the more "similar"
+	# the two images are
+	return err
