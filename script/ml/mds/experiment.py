@@ -34,13 +34,15 @@ def model_creator():
 if __name__ == "__main__":
 
 	# Load presaved entities
-	npz_loader = np.load("./entity/imgs_adjs_names.npz", allow_pickle=True)
+	npz_loader = np.load("./entity/imgs_imgs_normalized_adjs_names.npz", allow_pickle=True)
 	# Fetch images
 	imgs = npz_loader["arr_0"]
+	# Fetch images
+	imgs_normalized = npz_loader["arr_1"]
 	# Fetch adjectives
-	adjs = npz_loader["arr_1"]
+	adjs = npz_loader["arr_2"]
 	# Fetch names
-	names = npz_loader["arr_2"]
+	names = npz_loader["arr_3"]
 
 	models = model_creator()
 	evaluation_values = []
@@ -48,16 +50,16 @@ if __name__ == "__main__":
 	for (ix, model) in enumerate(tqdm(models)):
 
 		model(imgs)
-		model.visualize("./entity/mds_images/normal/{0}.png".format(ix), mean = False)
-		model.visualize("./entity/mds_images/clustered/{0}.png".format(ix), mean = True)
+		model.visualize("./entity/mds_images/hog/normal/{0}.png".format(ix), mean = False)
+		model.visualize("./entity/mds_images/hog/clustered/{0}.png".format(ix), mean = True)
 		evaluation_values.append(model.get_evaluation())
 
 	min_ix = np.argmin(evaluation_values)
 	
 	models[min_ix].visualize(
-		"./entity/mds_images/normal/fittest.png", mean=False)
+		"./entity/mds_images/hog/normal/fittest.png", mean=False)
 	models[min_ix].visualize(
-		"./entity/mds_images/clustered/fittest.png", mean=True)
+		"./entity/mds_images/hog/clustered/fittest.png", mean=True)
 
 		
 		

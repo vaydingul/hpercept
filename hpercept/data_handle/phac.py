@@ -1,5 +1,80 @@
 import matplotlib.pyplot as plt
 from . import utils
+
+
+UNIQUE_MATERIAL_TYPES = ["foam", "organic",
+                         "fabric", "plastic", "paper", "stone", "metal"]
+
+UNIQUE_EPS = ["hold", "squeeze", "slow_slide", "fast_slide"]
+
+
+EP_DICT = {"hold": 'HOLD_FOR_10_SECONDS',
+                   "squeeze": 'SQUEEZE_SET_PRESSURE_SLOW',
+                   "slow_slide": 'SLIDE_5CM',
+                   "fast_slide": 'MOVE_DOWN_5CM'}
+
+MATERIAL_TYPE_DICT = {"aluminum_block": "metal",
+                      "aluminum_channel": "metal",
+                      "applicator_pad": "foam",
+                      "art_notebook": "paper",
+                      "bath_cloth": "plastic",
+                      "black_acrylic": "plastic",
+                      "black_eraser": "fabric",
+                      "black_foam": "foam",
+                      "blue_sponge": "foam",
+                      "blue_toothpaste": "paper",
+                      "brick": "stone",
+                      "bubble_wrap": "plastic",
+                      "bumpy_foam": "foam",
+                      "caliper_case": "plastic",
+                      "charcoal_foam": "foam",
+                      "cloth_sack": "fabric",
+                      "coco_liner": "organic",
+                      "colorful_book": "paper",
+                      "concrete": "stone",
+                      "cookie_box": "paper",
+                      "corkboard": "organic",
+                      "cosmetics_box": "paper",
+                      "cushioned_envelope": "paper",
+                      "cutting_board": "plastic",
+                      "dishcloth": "fabric",
+                      "fiberboard": "paper",
+                      "flat_foam": "foam",
+                      "furry_eraser": "foam",
+                      "glass_bottle": "glass",
+                      "glass_container": "glass",
+                      "gray_eraser": "fabric",
+                      "gray_foam": "foam",
+                      "index_card_case": "plastic",
+                      "kitchen_sponge": "foam",
+                      "koozie": "foam",
+                      "layered_cork": "organic",
+                      "loofah": "organic",
+                      "machined_plastic": "plastic",
+                      "notepad": "paper",
+                      "orange_sponge": "foam",
+                      "pen_case": "paper",
+                      "pink_foam": "foam",
+                      "placemat": "fabric",
+                      "plastic_case": "plastic",
+                      "plastic_dispenser": "plastic",
+                      "plywood": "organic",
+                      "pool_noodle": "foam",
+                      "red_toothpaste": "paper",
+                      "satin_pillowcase": "fabric",
+                      "sawed_plastic": "plastic",
+                      "shelf_liner": "foam",
+                      "silicone_block": "plastic",
+                      "soap_dispenser": "plastic",
+                      "steel_vase": "metal",
+                      "tarp": "plastic",
+                      "tissue_pack": "paper",
+                      "toilet_paper": "paper",
+                      "white_foam": "foam",
+                      "yellow_felt": "fabric",
+                      "yellow_foam": "foam"}
+
+
 class PHAC2:
     """
 
@@ -24,6 +99,7 @@ class PHAC2:
 
     def __init__(self,
                  name=None,
+                 material_type=None,
                  accelerometer=None,
                  electrode_0=None,
                  pac_0=None,
@@ -40,6 +116,7 @@ class PHAC2:
                  adjective=None):
 
         self.name = name
+        self.material_type = material_type
         self.accelerometer = accelerometer
         self.electrode_0 = electrode_0
         self.pac_0 = pac_0
@@ -55,7 +132,7 @@ class PHAC2:
         self.image = image
         self.adjective = adjective
 
-    def visualize(self,fn):
+    def visualize(self, fn):
         """
 
 
@@ -70,7 +147,7 @@ class PHAC2:
 
         ax[0][0].plot(self.accelerometer)
         ax[0][0].set_title("Accelerometer (BioTac 1)")
-        ax[0][0].legend( ["$x$", "$y$", "$z$"], loc = "best")
+        ax[0][0].legend(["$x$", "$y$", "$z$"], loc="best")
         utils.specify_descriptive_boxes(self, ax[0][0])
 
         ax[0][1].plot(self.electrode_0)
@@ -116,9 +193,8 @@ class PHAC2:
         ax[2][3].set_title("Temperature (BioTac 2)")
         utils.specify_descriptive_boxes(self, ax[2][3])
 
-
-        fig.suptitle("PHAC-2 Measurements of {}\nAdjectives = {}".format(self.name, "-".join(self.adjective)))
+        fig.suptitle(
+            "PHAC-2 Measurements of {}\nAdjectives = {}".format(self.name, "-".join(self.adjective)))
         fig.tight_layout()
         fig.savefig(fn)
         plt.close("all")
-

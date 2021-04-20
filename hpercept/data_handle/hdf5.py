@@ -38,8 +38,16 @@ class PHAC2Dataset(data.Dataset):
 
         # Directory set in the dataset
         self.dir_set = utils.fetch_instances(self.fh, adj_set)
+        
+        
+        # Exclude repeated samples
+        _, unique_ixs = np.unique(["_".join(item.split("/")[2])
+                                       for item in self.dir_set], return_index=True)
+        self.dir_set = self.dir_set[unique_ixs]
 
-        # If unique is True, then it returns the unique data points
+
+        # For each material, there are 10 distinct measurement
+        # If unique is True, then it returns the first measurement only
         if unique:
             _, unique_ixs = np.unique(["_".join(item.split("/")[2].split("_")[:-2])
                                        for item in self.dir_set], return_index=True)

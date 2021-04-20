@@ -45,14 +45,16 @@ def model_creator():
 
 if __name__ == "__main__":
 
-	# Load presaved entities
-	npz_loader = np.load("./entity/imgs_adjs_names.npz", allow_pickle=True)
+		# Load presaved entities
+	npz_loader = np.load("./entity/imgs_imgs_normalized_adjs_names.npz", allow_pickle=True)
 	# Fetch images
 	imgs = npz_loader["arr_0"]
+	# Fetch images
+	imgs_normalized = npz_loader["arr_1"]
 	# Fetch adjectives
-	adjs = npz_loader["arr_1"]
+	adjs = npz_loader["arr_2"]
 	# Fetch names
-	names = npz_loader["arr_2"]
+	names = npz_loader["arr_3"]
 
 	# Configuration for embedding algorithm
 	method = MDS
